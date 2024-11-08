@@ -8,7 +8,7 @@ let layoutAngle = 7;
 
 let pearlSize = 18;      // Increased pearl size
 let vineThickness = 3;   // Increased vine thickness
-let noiseScale = 3000;   // Reduced noise scale for smoother animation
+let noiseScale = 3001;   // Reduced noise scale for smoother animation
 let timeOffset = 100000;
 let seed;
 
