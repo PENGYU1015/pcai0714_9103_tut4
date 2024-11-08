@@ -89,16 +89,16 @@ class Circle {
 
   drawVineEdge(start, end) {
     let distance = dist(start.x, start.y, end.x, end.y);
-    let steps = floor(distance / 10);
+    let steps = floor(distance / 8); // Increased point density for smoother curves
 
     push();
     strokeWeight(vineThickness);
-    // Add color variation based on noise
-    let colorNoise = noise(start.x * 0.01, start.y * 0.01, timeOffset * 0.3);
-    let r = map(colorNoise, 0, 1, 150, 255);
-    let g = map(noise(start.x * 0.01, start.y * 0.01, timeOffset * 0.3 + 1000), 0, 1, 100, 200);
-    let b = map(noise(start.x * 0.01, start.y * 0.01, timeOffset * 0.3 + 2000), 0, 1, 100, 200);
-    stroke(r, g, b);
+    // Enhanced dynamic color variation
+    let colorNoise = noise(start.x * 0.02, start.y * 0.02, timeOffset * 0.5);
+    let r = map(colorNoise, 0, 1, 100, 255);
+    let g = map(noise(start.x * 0.02, start.y * 0.02, timeOffset * 0.5 + 1000), 0, 1, 50, 200);
+    let b = map(noise(start.x * 0.02, start.y * 0.02, timeOffset * 0.5 + 2000), 0, 1, 50, 200);
+    stroke(r, g, b, 200); // Added slight transparency
     noFill();
 
     beginShape();
@@ -110,52 +110,76 @@ class Circle {
       let perpX = -(end.y - start.y) / distance;
       let perpY = (end.x - start.x) / distance;
       
-      // Enhanced sine wave movement
-      let amp = 8 * sin(t * PI);  // Increased base amplitude
-      let freq = 2;  // Reduced base frequency for wider waves
+      // Intensified primary sine wave movement
+      let amp = 15 * sin(t * PI);  // Significantly increased base amplitude
+      let freq = 1.5;  // Further reduced frequency for wider waves
       
-      // Enhanced Perlin noise movement
-      let noiseVal = noise(
-        t * 3 + start.x * 0.02,    // Increased spatial frequency
-        t * 3 + start.y * 0.02, 
-        timeOffset * 0.8           // Increased time-based animation speed
+      // Enhanced Perlin noise movement with multiple layers
+      let noiseVal1 = noise(
+        t * 4 + start.x * 0.03,    // First noise layer
+        t * 4 + start.y * 0.03, 
+        timeOffset * 1.2           // Faster animation
       );
       
-      // Stronger combined movement
-      let combinedAmp = amp + map(noiseVal, 0, 1, -12, 12);  // Increased noise amplitude
+      let noiseVal2 = noise(
+        t * 8 + start.x * 0.05,    // Second noise layer (higher frequency)
+        t * 8 + start.y * 0.05, 
+        timeOffset * 0.8
+      );
       
-      // Add more variation to frequency
+      // Combined noise value with two layers
+      let noiseVal = (noiseVal1 * 0.7 + noiseVal2 * 0.3);
+      
+      // More dramatic combined movement
+      let combinedAmp = amp + map(noiseVal, 0, 1, -20, 20);  // Increased noise amplitude
+      
+      // More dynamic frequency variation
       let noiseFreq = map(
-        noise(t * 4 + timeOffset * 0.5),
+        noise(t * 6 + timeOffset * 0.8),
         0, 1,
-        0.5, 1.5                   // Increased frequency variation range
+        0.3, 2.0                   // Wider frequency variation range
       );
       
-      // Apply the enhanced combined movement
+      // Primary movement with increased intensity
       x += perpX * combinedAmp * sin(t * TWO_PI * freq * noiseFreq);
       y += perpY * combinedAmp * sin(t * TWO_PI * freq * noiseFreq);
 
-      // Add stronger perpendicular noise movement
-      let perpNoise = map(
+      // Enhanced perpendicular movement with two noise layers
+      let perpNoise1 = map(
         noise(
-          t * 5 + timeOffset * 0.6 + start.x * 0.01,
-          t * 5 + timeOffset * 0.6 + start.y * 0.01
+          t * 7 + timeOffset * 0.9 + start.x * 0.02,
+          t * 7 + timeOffset * 0.9 + start.y * 0.02
         ),
         0, 1,
-        -6, 6                      // Increased perpendicular movement range
+        -12, 12                    // Doubled perpendicular range
       );
       
-      // Add secondary wave motion
-      let secondaryWave = sin(t * TWO_PI * 3 + timeOffset * 2) * 4;  // Additional wave movement
+      let perpNoise2 = map(
+        noise(
+          t * 12 + timeOffset * 1.2 + start.x * 0.03,
+          t * 12 + timeOffset * 1.2 + start.y * 0.03
+        ),
+        0, 1,
+        -6, 6                     // Additional high-frequency movement
+      );
       
-      x += perpX * (perpNoise + secondaryWave);
-      y += perpY * (perpNoise + secondaryWave);
+      // Multiple wave motions combined
+      let secondaryWave = sin(t * TWO_PI * 4 + timeOffset * 3) * 8;    // Faster, larger secondary wave
+      let tertiaryWave = cos(t * TWO_PI * 2.5 + timeOffset * 2) * 6;   // Additional wave motion
+      
+      x += perpX * (perpNoise1 + perpNoise2 + secondaryWave + tertiaryWave);
+      y += perpY * (perpNoise1 + perpNoise2 + secondaryWave + tertiaryWave);
 
-      // Add subtle spiral effect
-      let spiralAngle = t * TWO_PI * 0.5 + timeOffset;
-      let spiralRadius = 3 * (1 - t) * t;  // Maximum at t = 0.5
+      // Enhanced spiral effect
+      let spiralAngle = t * TWO_PI * 0.8 + timeOffset * 1.5;  // Faster spiral
+      let spiralRadius = 6 * (1 - t) * t;  // Larger spiral radius
       x += cos(spiralAngle) * spiralRadius;
       y += sin(spiralAngle) * spiralRadius;
+
+      // Add chaotic movement
+      let chaosAmount = 3 * noise(t * 10 + timeOffset, start.x * 0.1, start.y * 0.1);
+      x += random(-chaosAmount, chaosAmount);
+      y += random(-chaosAmount, chaosAmount);
 
       curveVertex(x, y);
     }
